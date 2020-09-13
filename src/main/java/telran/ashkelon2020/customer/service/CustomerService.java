@@ -1,5 +1,7 @@
 package telran.ashkelon2020.customer.service;
 
+import java.util.List;
+
 import telran.ashkelon2020.customer.dto.AccountDto;
 import telran.ashkelon2020.customer.dto.CustomerDto;
 import telran.ashkelon2020.customer.dto.NewAccountDto;
@@ -32,4 +34,7 @@ public interface CustomerService {
 	
 	SubscriberDto deleteSubscriber(String id);
 	
+	List<AccountDto> findAccountByTopic(String customerId, String topic);
+	
+	List<SubscriberDto> findSubscriberByCustomer (String customerId);
 }

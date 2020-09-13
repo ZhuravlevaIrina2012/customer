@@ -1,5 +1,8 @@
 package telran.ashkelon2020.customer.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,6 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Transactional
 	public CustomerDto deleteCustomer(String id) {
 		Customer customer = customerRepository.findById(id).orElseThrow(() -> new DocumentNotFoundException(id));
+		customer.getAccounts().forEach(a -> deleteAccount(a.getLogin()));
 		customerRepository.delete(customer);
 		return modelMapper.map(customer, CustomerDto.class);
 	}
@@ -99,6 +103,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Transactional
 	public AccountDto deleteAccount(String login) {
 		Account account = accountRepository.findById(login).orElseThrow(() -> new DocumentNotFoundException(login));
+		account.getSubscribers().forEach(s -> subscriberRepository.delete(s));
 		accountRepository.delete(account);
 		return modelMapper.map(account, AccountDto.class);
 	}
@@ -137,10 +142,30 @@ public class CustomerServiceImpl implements CustomerService {
 	@Transactional
 	public SubscriberDto deleteSubscriber(String id) {
 		Subscriber subscriber = subscriberRepository.findById(id).orElseThrow(() -> new DocumentNotFoundException(id));
-		subscriber.getAccounts().forEach(a -> accountRepository.delete(a));
+		subscriber.getAccounts().forEach(a -> accountRepository.findById(a.getLogin()).get().getSubscribers().remove(subscriber));
 		subscriberRepository.delete(subscriber);
 		return modelMapper.map(subscriber, SubscriberDto.class);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<AccountDto> findAccountByTopic(String customerId, String topic) {
+		return customerRepository.findAccountByTopic(customerId, topic)
+					.map(a -> modelMapper.map(a, AccountDto.class))
+					.collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<SubscriberDto> findSubscriberByCustomer(String customerId) {
+		return subscriberRepository.findByAccountsCustomerId(customerId)
+					.map(s -> modelMapper.map(s, SubscriberDto.class))
+					.collect(Collectors.toList());
+	}
+	
+	
+
+	
 
 	
 }

@@ -1,5 +1,7 @@
 package telran.ashkelon2020.customer.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,4 +84,13 @@ public class CustomerController {
 		return customerService.deleteSubscriber(id);
 	}
 	
+	@GetMapping("/customer/{customerId}/subscribers")
+	public List<SubscriberDto> findSubscriberByCustomer(@PathVariable String customerId) {
+		return customerService.findSubscriberByCustomer(customerId);
+	}
+	
+	@GetMapping("/customer/{customerId}/accounts/topic/{topic}")
+	public List<AccountDto> findAccountByTopic(@PathVariable String customerId, @PathVariable String topic) {
+		return customerService.findAccountByTopic(customerId, topic);
+	}
 }
